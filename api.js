@@ -10,9 +10,19 @@ const readFile = pify(fs.readFile);
 const send = micro.send;
 const _ = require("lodash");
 const uuidv4 = require("uuid/v4");
+const sluggo = require("sluggo");
 
 function singular(str) {
   return str.slice(0, -1);
+}
+
+function slugifyPath(str, itemType) {
+  return sluggo(
+    str
+      .split(itemType + "/")
+      .pop()
+      .replace(/\.[^/.]+$/, "")
+  );
 }
 
 async function getHome() {
@@ -60,6 +70,7 @@ async function getContent(cwd, itemType) {
       myArray.push(tmpDocFiles[post]);
     }
     posts = myArray;
+    sortContent("./", "posts");
   }
   if (itemType === "pages") {
     let myArray = [];
@@ -67,31 +78,42 @@ async function getContent(cwd, itemType) {
       myArray.push(tmpDocFiles[page]);
     }
     pages = myArray;
+    sortContent("./", "pages");
   }
 }
 
 async function getDocFile(path, cwd, itemType) {
   cwd = cwd || process.cwd();
   let file = await readFile(resolve(cwd, path), "utf-8");
+
   // transform markdown to html
   file = fm(file);
   if (itemType === "posts") {
     posts[path] = {
       path: path,
+      slug: slugifyPath(path, itemType),
       attrs: file.attributes,
       body: marked(file.body)
     };
+    console.log(posts[path]);
     return posts[path];
   }
 
   if (itemType === "pages") {
     pages[path] = {
       path: path,
+      slug: slugifyPath(path, itemType),
       attrs: file.attributes,
       body: marked(file.body)
     };
+    console.log(pages[path]);
     return pages[path];
   }
+}
+
+async function updatePosts(path, cwd, itemType) {
+  cwd = cwd || process.cwd();
+  let file = await readFile(resolve(cwd, path), "utf-8");
 }
 
 // watch file changes
@@ -112,6 +134,7 @@ function watchFiles() {
     })
     .on("unlink", path => {
       delete posts[path];
+      console.log(posts[path]);
       console.log("Post deleted: ", path);
     });
   // Pages watcher
@@ -122,12 +145,20 @@ function watchFiles() {
       console.log("Page added: ", path);
     })
     .on("change", path => {
+      let found = posts.find(function(el) {
+        return el.path === path;
+      });
+
       getDocFile(path, "./", "pages");
-      console.log("Page changed: ", path);
+
+      console.log("Page changed: ", found);
     })
     .on("unlink", path => {
-      delete pages[path];
-      console.log("Page deleted: ", path);
+      //delete pages[path];
+      let found = posts.find(function(el) {
+        return el.path === path;
+      });
+      console.log("Page deleted: ", found);
     });
 }
 
@@ -157,8 +188,9 @@ const server = micro(async function(req, res) {
     if (!found) {
       return send(res, 404, "File not found");
     }
-
-    send(res, 200, found);
+    let foundArray = [];
+    foundArray.push(found);
+    send(res, 200, foundArray);
   }
 
   if (req.url.indexOf("/posts") === 0) {
@@ -170,13 +202,16 @@ const server = micro(async function(req, res) {
       return send(res, 404, "File not found");
     }
 
-    send(res, 200, found);
+    let foundArray = [];
+    foundArray.push(found);
+    send(res, 200, foundArray);
   }
 });
 
 module.exports = getContent("./", "posts")
   .then(() => getContent("./", "pages"))
-  .then(() => sortContent("./", "posts"))
+  //   .then(() => sortContent("./", "posts"))
+  //   .then(() => sortContent("./", "pages"))
   .then(() => getHome())
   .then(() => watchFiles())
   .then(() => {
