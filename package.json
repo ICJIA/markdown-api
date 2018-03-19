@@ -1,0 +1,26 @@
+{
+  "name": "markdown-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./api"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "chokidar": "^2.0.2",
+    "front-matter": "^2.3.0",
+    "glob": "^7.1.2",
+    "lodash": "^4.17.5",
+    "marked": "^0.3.17",
+    "micro": "^9.1.4",
+    "micro-dev": "^2.2.2",
+    "nodemon": "^1.17.2",
+    "pify": "^3.0.0",
+    "uuid": "^3.2.1"
+  }
+}
