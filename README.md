@@ -21,11 +21,11 @@ $ npm run dev
 For development: http://localhost:4000
 
 ```
-[/posts](/posts) = Show all posts
+/posts -> Show all posts
 
-[/posts/test1](/posts/test1) = Show single post
+/posts/test1 -> Show single post
 
-[/pages](/pages) = show all pages
+/pages -> show all pages
 
-[/pages/page1](/pages/page1) = show single page
+/pages/page1 -> show single page
 ```
