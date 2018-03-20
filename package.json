@@ -6,11 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon ./api.js",
-    "start": "node ./api.js"
+    "start": "node ./api.js",
+    "deploy": "now && now alias"
   },
   "engines": {
     "node": "9.5.0"
   },
+
   "keywords": [],
   "author": "",
   "license": "ISC",

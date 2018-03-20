@@ -133,13 +133,14 @@ const server = micro(
     res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     res.setHeader("X-Total-Posts", _SORTED_POSTS_.length);
+    res.setHeader("X-Total-Tags", _.size(_TAGS_));
 
     if (req.url === "/posts") {
       return send(res, 200, _SORTED_POSTS_);
     }
 
     if (req.url === "/tags") {
-      return send(res, 200, _TAGS_);
+      return send(res, 200, [_TAGS_]);
     }
 
     if (req.url.indexOf("/posts") === 0) {
