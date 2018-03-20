@@ -8,14 +8,14 @@ Thanks also to this thread: https://github.com/nuxt/nuxt.js/issues/396
 
 ## Installation
 
-Clone or download this repository.
-
 ```
+$ git clone https://github.com/ICJIA/markdown-api.git
+
 $ cd markdown-api
 
 $ yarn
 
-$ npm run dev
+$ yarn dev
 ```
 
 For development: http://localhost:4000
@@ -24,8 +24,4 @@ For development: http://localhost:4000
 /posts -> Show all posts
 
 /posts/test1 -> Show single post
-
-/pages -> show all pages
-
-/pages/page1 -> show single page
 ```
