@@ -27,6 +27,7 @@ function sortByDate(df, dir = "desc") {
 
 let _DOC_FILES_ = {};
 let _SORTED_POSTS_ = [];
+let _TAGS_ = {};
 
 async function getFiles(cwd) {
   console.log("Building files...");
@@ -47,9 +48,34 @@ async function getFiles(cwd) {
     promises.push(promise);
   });
   await Promise.all(promises);
-
+  _TAGS_ = {};
   _DOC_FILES_ = tmpDocFiles;
   _SORTED_POSTS_ = sortByDate(_DOC_FILES_);
+
+  let tmpTags = [];
+  // Get all tags
+  _SORTED_POSTS_.map(function(post) {
+    if (post.attrs.tags) {
+      post.attrs.tags.map(function(tag) {
+        // tmpTags.push(tag);
+        _TAGS_[tag] = [];
+      });
+    }
+  });
+  // DeDupe tags
+  tmpTags = tmpTags.reduce((x, y) => (x.includes(y) ? x : [...x, y]), []);
+  // Add post slugs to tag list
+  for (var tag in _TAGS_) {
+    _SORTED_POSTS_.map(function(post) {
+      if (post.attrs.tags) {
+        post.attrs.tags.map(function(targetTag) {
+          if (targetTag === tag) {
+            _TAGS_[tag].push({ slug: encodeURI(post.path) });
+          }
+        });
+      }
+    });
+  }
 }
 
 async function getDocFile(path, cwd) {
@@ -110,6 +136,10 @@ const server = micro(
 
     if (req.url === "/posts") {
       return send(res, 200, _SORTED_POSTS_);
+    }
+
+    if (req.url === "/tags") {
+      return send(res, 200, _TAGS_);
     }
 
     if (req.url.indexOf("/posts") === 0) {

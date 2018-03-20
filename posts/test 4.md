@@ -1,8 +1,9 @@
 ---
 title: "This is a test"
 tags:
-  - Tag 3
-  - Tag 4
+  - Tag3
+  - Tag4
+  - Tag1
 created: 2018-03-03
 ---
 
