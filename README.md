@@ -24,4 +24,6 @@ For development: http://localhost:4000
 /posts -> Show all posts
 
 /posts/test1 -> Show single post
+
+/tags -> Show all tags
 ```
