@@ -1,5 +1,5 @@
 const fs = require("fs");
-const afs = require("async-file");
+
 const micro = require("micro");
 const axios = require("axios");
 const pify = require("pify");
@@ -11,7 +11,7 @@ const readFile = pify(fs.readFile);
 const renameFile = fs.renameFile;
 const send = micro.send;
 const _ = require("lodash");
-const sluggo = require("sluggo");
+
 function slugifyPath(path, itemType) {
   return encodeURI("/" + path.replace(/\.[^/.]+$/, ""));
 }
@@ -97,8 +97,6 @@ const server = micro(async function(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  // remove first /
 
   if (req.url === "/posts") {
     return send(res, 200, _SORTED_POSTS_);
