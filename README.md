@@ -18,12 +18,10 @@ $ yarn
 $ yarn dev
 ```
 
-For development: http://localhost:4000
+## Demo
 
-```
-/posts -> Show all posts
+https://markdown-api.now.sh/posts -> Show all posts
 
-/posts/test1 -> Show single post
+https://markdown-api.now.sh/posts/test1 -> Show single post
 
-/tags -> Show all tags
-```
+https://markdown-api.now.sh/tags -> Show all tags
