@@ -8,11 +8,13 @@ const marked = require("marked");
 const fm = require("front-matter");
 const { resolve } = require("path");
 const readFile = pify(fs.readFile);
+const stat = pify(fs.stat);
 const renameFile = fs.renameFile;
 const send = micro.send;
 const _ = require("lodash");
+const compress = require("micro-compress");
 
-function slugifyPath(path, itemType) {
+function slugifyPath(path) {
   return encodeURI("/" + path.replace(/\.[^/.]+$/, ""));
 }
 
@@ -52,17 +54,19 @@ async function getFiles(cwd) {
 
 async function getDocFile(path, cwd) {
   cwd = cwd || process.cwd();
-
+  let created;
+  let filestats = await stat(path);
   let file = await readFile(resolve(cwd, path), "utf-8");
-  // transform markdown to html
 
   file = fm(file);
   _DOC_FILES_[path] = {
     path: path,
-    slug: slugifyPath(path, "posts"),
+    slug: slugifyPath(path),
     attrs: file.attributes,
     body: marked(file.body)
   };
+  _DOC_FILES_[path].attrs.updated = filestats.mtime;
+
   _SORTED_POSTS_ = sortByDate(_DOC_FILES_);
   return _DOC_FILES_[path];
 }
@@ -85,31 +89,38 @@ function watchFiles() {
     .watch("*/**/*.md", options)
     .on("add", path => {
       getDocFile(path);
+      console.log("File added: ", path);
     })
-    .on("change", path => getDocFile(path))
+    .on("change", path => {
+      getDocFile(path);
+      console.log("File changed: ", path);
+    })
     .on("unlink", path => {
       delete _DOC_FILES_[path];
       _SORTED_POSTS_ = sortByDate(_DOC_FILES_);
     });
 }
 
-const server = micro(async function(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+const server = micro(
+  compress(async function(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("X-Total-Posts", _SORTED_POSTS_.length);
 
-  if (req.url === "/posts") {
-    return send(res, 200, _SORTED_POSTS_);
-  }
-
-  if (req.url.indexOf("/posts") === 0) {
-    let path = decodeURI(req.url.slice(1) + ".md");
-    if (!_DOC_FILES_[path]) {
-      return send(res, 404, "File not found");
+    if (req.url === "/posts") {
+      return send(res, 200, _SORTED_POSTS_);
     }
-    send(res, 200, [_DOC_FILES_[path]]);
-  }
-});
+
+    if (req.url.indexOf("/posts") === 0) {
+      let path = decodeURI(req.url.slice(1) + ".md");
+      if (!_DOC_FILES_[path]) {
+        return send(res, 404, "File not found");
+      }
+      send(res, 200, [_DOC_FILES_[path]]);
+    }
+  })
+);
 
 module.exports = getFiles()
   .then(sortFiles())

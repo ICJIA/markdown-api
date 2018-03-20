@@ -20,6 +20,7 @@
     "lodash": "^4.17.5",
     "marked": "^0.3.17",
     "micro": "^9.1.4",
+    "micro-compress": "^1.0.0",
     "pify": "^3.0.0",
     "sluggo": "^0.2.0"
   }
