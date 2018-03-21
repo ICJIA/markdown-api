@@ -195,7 +195,7 @@ const server = micro(
 
     if (req.url.indexOf("/tags") === 0) {
       let tag = req.url.split("/");
-      decodedTag = decodeURI(tag[2]);
+      let decodedTag = decodeURI(tag[2]);
       let response = "";
       _TAGS_[decodedTag]
         ? (response = _TAGS_[decodedTag])
@@ -221,7 +221,7 @@ const server = micro(
 
     if (req.url.indexOf("/categories") === 0) {
       let category = req.url.split("/");
-      decodedCategory = decodeURI(category[2]);
+      let decodedCategory = decodeURI(category[2]);
       let response = "";
       _CATEGORIES_[decodedCategory]
         ? (response = _CATEGORIES_[decodedCategory])
