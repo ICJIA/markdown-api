@@ -51,31 +51,7 @@ async function getFiles(cwd) {
   _TAGS_ = {};
   _DOC_FILES_ = tmpDocFiles;
   _SORTED_POSTS_ = sortByDate(_DOC_FILES_);
-
-  let tmpTags = [];
-  // Get all tags
-  _SORTED_POSTS_.map(function(post) {
-    if (post.attrs.tags) {
-      post.attrs.tags.map(function(tag) {
-        // tmpTags.push(tag);
-        _TAGS_[tag] = [];
-      });
-    }
-  });
-  // DeDupe tags
-  tmpTags = tmpTags.reduce((x, y) => (x.includes(y) ? x : [...x, y]), []);
-  // Add post slugs to tag list
-  for (var tag in _TAGS_) {
-    _SORTED_POSTS_.map(function(post) {
-      if (post.attrs.tags) {
-        post.attrs.tags.map(function(targetTag) {
-          if (targetTag === tag) {
-            _TAGS_[tag].push({ slug: encodeURI(post.path) });
-          }
-        });
-      }
-    });
-  }
+  generateTags(_DOC_FILES_);
 }
 
 async function getDocFile(path, cwd) {
@@ -92,14 +68,40 @@ async function getDocFile(path, cwd) {
     body: marked(file.body)
   };
   _DOC_FILES_[path].attrs.updated = filestats.mtime;
-
   _SORTED_POSTS_ = sortByDate(_DOC_FILES_);
   return _DOC_FILES_[path];
 }
 
-async function sortFiles() {
-  let sorted = await _DOC_FILES_;
-  return sorted;
+async function generateTags(df) {
+  let tagObj = {};
+  let sortedPosts = await sortByDate(df);
+  let tmpTags = [];
+  // Get all tags
+
+  sortedPosts.map(function(post) {
+    if (post.attrs.tags) {
+      post.attrs.tags.map(function(tag) {
+        // tmpTags.push(tag);
+        tagObj[tag] = [];
+      });
+    }
+  });
+
+  for (var tag in tagObj) {
+    sortedPosts.map(function(post) {
+      if (post.attrs.tags) {
+        post.attrs.tags.map(function(targetTag) {
+          if (targetTag === tag) {
+            tagObj[tag].push({
+              slug: encodeURI(post.path.replace(/\.[^/.]+$/, ""))
+            });
+          }
+        });
+      }
+    });
+  }
+
+  _TAGS_ = tagObj;
 }
 
 // watch file changes
@@ -114,16 +116,23 @@ function watchFiles() {
   chokidar
     .watch("*/**/*.md", options)
     .on("add", path => {
-      getDocFile(path);
+      getDocFile(path).then(function() {
+        generateTags(_DOC_FILES_);
+      });
+
       console.log("File added: ", path);
     })
     .on("change", path => {
-      getDocFile(path);
+      getDocFile(path).then(function() {
+        generateTags(_DOC_FILES_);
+      });
+
       console.log("File changed: ", path);
     })
     .on("unlink", path => {
       delete _DOC_FILES_[path];
-      _SORTED_POSTS_ = sortByDate(_DOC_FILES_);
+      generateTags(_DOC_FILES_);
+      console.log(_DOC_FILES_);
     });
 }
 
@@ -143,6 +152,20 @@ const server = micro(
       return send(res, 200, [_TAGS_]);
     }
 
+    if (req.url.indexOf("/tags") === 0) {
+      let tag = req.url.split("/");
+      decodedTag = decodeURI(tag[2]);
+      console.log(decodedTag);
+      console.log(_TAGS_[decodedTag]);
+      let response = "";
+      if (_TAGS_[decodedTag]) {
+        response = _TAGS_[decodedTag];
+      } else {
+        response = "Tag not found";
+      }
+      return send(res, 200, response);
+    }
+
     if (req.url.indexOf("/posts") === 0) {
       let path = decodeURI(req.url.slice(1) + ".md");
       if (!_DOC_FILES_[path]) {
@@ -153,12 +176,10 @@ const server = micro(
   })
 );
 
-module.exports = getFiles()
-  .then(sortFiles())
-  .then(() => {
-    watchFiles();
-    const port = process.env.PORT || 4000;
-    server.listen(port);
-    console.log(`Server listening on localhost:${port}`);
-    return server;
-  });
+module.exports = getFiles().then(() => {
+  watchFiles();
+  const port = process.env.PORT || 4000;
+  server.listen(port);
+  console.log(`Server listening on localhost:${port}`);
+  return server;
+});
