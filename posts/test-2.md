@@ -7,7 +7,6 @@ tags:
   - "Tag 7777777777777"
   - "Chicago"
   - "Jacksonville"
-  - "Winfield"
 ---
 
 This is a test. This is another test. And this is one more. Test test test
