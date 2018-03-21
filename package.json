@@ -1,5 +1,5 @@
 {
-  "name": "markdown-api-2",
+  "name": "markdown-to-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,15 +9,10 @@
     "start": "node ./api.js",
     "deploy": "now && now alias"
   },
-  "engines": {
-    "node": "9.5.0"
-  },
-
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async-file": "^2.0.2",
     "axios": "^0.18.0",
     "chokidar": "^2.0.2",
     "front-matter": "^2.3.0",
@@ -27,7 +22,6 @@
     "marked": "^0.3.17",
     "micro": "^9.1.4",
     "micro-compress": "^1.0.0",
-    "pify": "^3.0.0",
-    "sluggo": "^0.2.0"
+    "pify": "^3.0.0"
   }
 }

@@ -7,7 +7,7 @@ tags:
   - Trenton
   - Test
 
-category: Featured
+category: News
 ---
 
 This is a test file.

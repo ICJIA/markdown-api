@@ -27,3 +27,7 @@ https://markdown-api.now.sh/posts/test1 -> Show single post
 https://markdown-api.now.sh/tags -> Show all tags
 
 https://markdown-api.now.sh/tags/Chicago -> Show single tag
+
+https://markdown-api.now.sh/categories -> Show all categories
+
+https://markdown-api.now.sh/categories/Featured -> Show single category
