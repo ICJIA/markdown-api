@@ -67,7 +67,6 @@ function generateTags(df) {
       if (post.attrs.tags) {
         post.attrs.tags.map(function(targetTag) {
           if (targetTag === tag) {
-            tagObj[tag] = [];
             tagObj[tag].push({
               slug: encodeURI("/" + post.path.replace(/\.[^/.]+$/, ""))
             });
