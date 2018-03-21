@@ -215,6 +215,10 @@ const server = micro(
         : send(res, 200, _DOC_FILES_[path]);
     }
 
+    if (req.url === "/") {
+      return send(res, 200, `Markdown-to-API`);
+    }
+
     if (req.url === "/categories") {
       return send(res, 200, [_CATEGORIES_]);
     }

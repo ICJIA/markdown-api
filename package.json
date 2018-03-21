@@ -22,6 +22,7 @@
     "marked": "^0.3.17",
     "micro": "^9.1.4",
     "micro-compress": "^1.0.0",
+    "nodemon": "^1.17.2",
     "pify": "^3.0.0"
   }
 }
