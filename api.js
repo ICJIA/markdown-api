@@ -22,7 +22,12 @@ let _TAGS_ = {};
 let _CATEGORIES_ = {};
 
 function slugifyPath(path) {
-  return encodeURI("/" + path.replace(/\.[^/.]+$/, ""));
+  return encodeURI(
+    path
+      .split("/")
+      .pop()
+      .replace(/\.[^/.]+$/, "")
+  );
 }
 
 function sortByDate(df, dir = "desc") {
@@ -40,8 +45,17 @@ function generateCategories(df) {
   for (var category in categoryObj) {
     sortedPosts.map(function(post) {
       if (post.attrs.category === category) {
+        let attrs = {
+          title: post.attrs.title,
+          tags: post.attrs.tags,
+          created: post.attrs.created,
+          updated: post.attrs.updated
+        };
         categoryObj[category].push({
-          slug: encodeURI("/" + post.path.replace(/\.[^/.]+$/, ""))
+          path: post.path,
+          slug: encodeURI(slugifyPath(post.path)),
+          body: post.body,
+          attrs: attrs
         });
       }
     });
@@ -67,8 +81,17 @@ function generateTags(df) {
       if (post.attrs.tags) {
         post.attrs.tags.map(function(targetTag) {
           if (targetTag === tag) {
+            let attrs = {
+              title: post.attrs.title,
+              tags: post.attrs.tags,
+              created: post.attrs.created,
+              updated: post.attrs.updated
+            };
             tagObj[tag].push({
-              slug: encodeURI("/" + post.path.replace(/\.[^/.]+$/, ""))
+              path: post.path,
+              slug: encodeURI(slugifyPath(post.path)),
+              body: post.body,
+              attrs: attrs
             });
           }
         });
@@ -114,7 +137,7 @@ async function getDocFile(path, cwd) {
   file = fm(file);
   _DOC_FILES_[path] = {
     path: path,
-    slug: slugifyPath(path),
+    slug: encodeURI(slugifyPath(path)),
     attrs: file.attributes,
     body: marked(file.body)
   };
@@ -189,7 +212,7 @@ const server = micro(
       let path = decodeURI(req.url.slice(1) + ".md");
       return !_DOC_FILES_[path]
         ? send(res, 404, "File not found")
-        : send(res, 200, [_DOC_FILES_[path]]);
+        : send(res, 200, _DOC_FILES_[path]);
     }
 
     if (req.url === "/categories") {
